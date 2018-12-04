@@ -15,7 +15,9 @@ class Game extends React.Component {
       nbColonne:3,
       currentSymbole:"",
       scoreJoueurX:0,
-      scoreJoueurO:0
+      scoreJoueurO:0,
+      partiFini:false,
+      status:""
 
     
     };
@@ -99,27 +101,79 @@ class Game extends React.Component {
     return false;
   }
   handleClick(i,j) {
-    const squares = this.state.squares.slice();
-    squares[i][j] = this.state.xIsNext ? 'X' : 'O';
-    this.setState({
-      squares: squares,
-      xIsNext: !this.state.xIsNext,
-      currentSymbole:squares[i][j]
-    });
-    let winner = this.rechercheGagnant(squares[i][j]);
+
     
-    if(winner){
-      if(winner === 'X'){
-        this.updateScoreJoueurX();
-        setTimeout(()=>alert('Victoire X',1000));
-        return;
+    if(!this.checkPartiFini()){
+      let status = this.state.status;
+      const squares = this.state.squares.slice();
+      squares[i][j] = this.state.xIsNext ? 'X' : 'O';
+      let symbole = !this.state.xIsNext ? 'X' : 'O';
+      status = "Tour du joueur : " + symbole;
+      this.setState({
+        squares: squares,
+        xIsNext: !this.state.xIsNext,
+        currentSymbole:squares[i][j],
+        status:status
+      });
+      let winner = this.rechercheGagnant(squares[i][j]);
+ 
+       if(winner === 'X'){
+          this.updateScoreJoueurX();
+          setTimeout(()=>alert('Victoire X',1000));
+          this.updatePartiFini();
+          this.updateStatusX();
+       }
+                
+        if(winner === 'O'){
+          this.updateScoreJoueurO();
+          setTimeout(()=>alert('Victoire O',1000));
+          this.updatePartiFini();
+          this.updateStatusO();
+          }
+       
+            
+      } else {
+        this.alertPartiFini();
       }
-      if(winner === 'O'){
-        this.updateScoreJoueurO();
-        setTimeout(()=>alert('Victoire O',1000));
-      }
-    }
-    console.log(winner);
+      
+
+  }
+  handleBoutonRejouer(){
+    this.resetTableauEtSatus();
+  }
+
+  resetTableauEtSatus(){
+    this.setState({
+      squares: [[],[],[]],
+      partiFini:false,
+      status:""
+    });
+  }
+    
+  updateStatusX(){
+    this.setState({
+      status : "Victoire du joueur X"
+    });
+  }
+    
+  updateStatusO(){
+    this.setState({
+      status : "Victoire du joueur O"
+    });
+  }
+    
+  updatePartiFini(){
+    const etat = !this.state.partiFini;
+    this.setState({
+      partiFini : etat
+    });
+  }
+  checkPartiFini(){
+    const etat = this.state.partiFini;
+    return etat;
+  }
+  alertPartiFini(){
+    alert('Partie Fini');
   }
   
    conditionDeVictoire(symbol) {
@@ -140,14 +194,14 @@ class Game extends React.Component {
   updateScoreJoueurX(){
     let scoreX = this.state.scoreJoueurX;
     this.setState({
-      scoreJoueurX: scoreX++,
+      scoreJoueurX: scoreX + 1
       
     });
   }
   updateScoreJoueurO(){
     let scoreO = this.state.scoreJoueurO;
     this.setState({
-      scoreJoueurO: scoreO
+      scoreJoueurO: scoreO +1 
     });
   }
   render() {
@@ -202,19 +256,40 @@ class Game extends React.Component {
             <p>Score joueur O : {this.state.scoreJoueurO}</p>
           </div>
           <div>
-            <p>status{this.status}</p>
+            <p>{this.state.status}</p>
           </div>
          
         </div>
+        <GameBouton onClick = {()=>this.handleBoutonRejouer()}/>
       </div>
     );
   }
 }
 
+function GameBouton(props) {
+    return (
+      
+      
+        <div className="game-bouton">
+          <BoutonRejouer onClick={props.onClick}/>
+         
+        </div>    
+    ); 
+  }
+
+
+function BoutonRejouer(props){
+  return(
+  <button type="button" onClick = {props.onClick}>
+    Rejouer
+    </button>
+  );
+}
+
 // ========================================
 
 ReactDOM.render(
-  <Game />,
+  <Game />, 
   document.getElementById('root')
 );
 
