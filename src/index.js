@@ -7,176 +7,203 @@ import './index.css';
 class Game extends React.Component {
   constructor(props) {
     super(props);
-   
+    
+
     this.state = {
-      squares: [["","",""],["","",""],["","",""]],
-      cloneSquare:[["","",""],["","",""],["","",""]],
+      squares: [["", "", ""], ["", "", ""], ["", "", ""]],
+      cloneSquare: [["", "", ""], ["", "", ""], ["", "", ""]],
       xIsNext: true,
       nbLigne: 3,
-      nbColonne:3,
-      currentSymbole:"",
-      scoreJoueurX:0,
-      scoreJoueurO:0,
-      partiFini:false,
-      status:"",
-      move:0
+      nbColonne: 3,
+      currentSymbole: "",
+      scoreJoueurX: 0,
+      scoreJoueurO: 0,
+      partiFini: false,
+      matchNul:false,
+      celluleRestante:9,
+      status: "",
+      move: 0
 
-    
+
     };
   }
-   victoireLigne(symbol){
+  victoireLigne(symbol) {
 
     const board = this.state.squares;
-    for(let i =0;i<this.state.nbLigne;i++){
-      let trouve =0;
-        for(let j = 0 ;j<this.state.nbColonne;j++){
-            if (board[i][j] === symbol){
-                trouve++;
-                if(trouve === this.state.nbColonne){
-                return true;
-              }
-              
-            }
-            
-        }
-        
-    }
-    return false;
-  }
-  
-   victoireColonne(symbol){
-  
-    const board = this.state.squares;
-    for(let i =0;i<this.state.nbColonne;i++){
-      let trouve =0;
-        for(let j = 0 ;j<this.state.nbLigne;j++){
-            if (board[j][i] === symbol){
-                trouve++;
-                if(trouve === this.state.nbLigne){
-                return true;
-              }
-              
-            }
-            
-        }
-        
-    }
-    return false;
-  }
-  
-   victoireDiago1(symbol){
-  
-    const board = this.state.squares;
-    if(this.state.nbLigne === this.state.nbColonne){
-      let trouve =0;
-      for(let i =0;i<this.state.nbLigne;i++){
-        if(board[i][i] === symbol){
+    for (let i = 0; i < this.state.nbLigne; i++) {
+      let trouve = 0;
+      for (let j = 0; j < this.state.nbColonne; j++) {
+        if (board[i][j] === symbol) {
           trouve++;
-          if(trouve === this.state.nbLigne){
+          if (trouve === this.state.nbColonne) {
+            return true;
+          }
+
+        }
+
+      }
+
+    }
+    return false;
+  }
+
+  victoireColonne(symbol) {
+
+    const board = this.state.squares;
+    for (let i = 0; i < this.state.nbColonne; i++) {
+      let trouve = 0;
+      for (let j = 0; j < this.state.nbLigne; j++) {
+        if (board[j][i] === symbol) {
+          trouve++;
+          if (trouve === this.state.nbLigne) {
+            return true;
+          }
+
+        }
+
+      }
+
+    }
+    return false;
+  }
+
+  victoireDiago1(symbol) {
+
+    const board = this.state.squares;
+    if (this.state.nbLigne === this.state.nbColonne) {
+      let trouve = 0;
+      for (let i = 0; i < this.state.nbLigne; i++) {
+        if (board[i][i] === symbol) {
+          trouve++;
+          if (trouve === this.state.nbLigne) {
             return true;
           }
         }
-        }
+      }
     }
-    
+
     return false;
   }
-  
-   victoireDiago2(symbol){
-  
+
+  victoireDiago2(symbol) {
+
     const board = this.state.squares;
-    if(this.state.nbLigne === this.state.nbColonne){
+    if (this.state.nbLigne === this.state.nbColonne) {
       let j = this.state.nbColonne - 1;
       let trouve = 0;
-      for(let i = 0 ;i< this.state.nbLigne;i++){
-        if(board[i][j] === symbol){
+      for (let i = 0; i < this.state.nbLigne; i++) {
+        if (board[i][j] === symbol) {
           trouve++;
-          if(trouve === this.state.nbColonne){
+          if (trouve === this.state.nbColonne) {
             return true;
           }
         }
         j--;
-        }
-        
-    }		
-    
+      }
+
+    }
+
     return false;
   }
-  handleClick(i,j) {
+  handleClick(i, j) {
 
-    
-    if(!this.checkPartiFini()){
-      if(!this.caseVide(i,j)){
+    console.log('toto')
+    if (this.state.partiFini===false) {
+      if (!this.caseVide(i, j) && this.state.celluleRestante !== 0 ) {
         alert("Case Pleine");
-      }else if (!this.tableauPlein()){
-
+        return;
+      }
+      if (this.state.celluleRestante !== 0){
+       
         let status = this.state.status;
-      const squares = this.state.squares.slice();
-      squares[i][j] = this.state.xIsNext ? 'X' : 'O';
-      let symbole = !this.state.xIsNext ? 'X' : 'O';
-      //let move = this.state.move + 1;
-      
-      status = "Tour du joueur : " + symbole;
-      
-      this.setState({
-        squares: squares,
-        xIsNext: !this.state.xIsNext,
-        currentSymbole:squares[i][j],
-        status:status,
+        const squares = this.state.squares.slice();
+        squares[i][j] = this.state.xIsNext ? 'X' : 'O';
+        let symbole = !this.state.xIsNext ? 'X' : 'O';
+        //let move = this.state.move + 1;
+
+        status = "Tour du joueur : " + symbole;
+        this.setState({
+          squares: squares,
+          xIsNext: !this.state.xIsNext,
+          currentSymbole: squares[i][j],
+          status: status,
+          celluleRestante : this.state.celluleRestante -1
+
+        });
         
-      });
-      this.clonerTableau();
-      
-      let winner = this.rechercheGagnant(this.state.squares[i][j]);
- 
-       if(winner === 'X'){
+      }else if (this.state.celluleRestante ===1){
+
+        const squares = this.state.squares.slice();
+        squares[i][j] = this.state.xIsNext ? 'X' : 'O';
+        let status = "Match nul";
+         
+         this.setState({
+          squares: squares,
+          xIsNext: !this.state.xIsNext,
+          status: status,
+          partiFini:true,
+          celluleRestante : this.state.celluleRestante -1
+          
+
+        });
+        
+      }
+        
+        //this.clonerTableau();
+
+        let winner = this.rechercheGagnant(this.state.squares[i][j]);
+
+        if (winner === 'X') {
           this.updateScoreJoueurX();
-          setTimeout(()=>alert('Victoire X',1000));
+          setTimeout(() => alert('Victoire X', 1000));
           this.updatePartiFini();
           this.updateStatusX();
-       }
-                
-        if(winner === 'O'){
+        }
+
+        if (winner === 'O') {
           this.updateScoreJoueurO();
-          setTimeout(()=>alert('Victoire O',1000));
+          setTimeout(() => alert('Victoire O', 1000));
           this.updatePartiFini();
           this.updateStatusO();
-          }
- 
-} else {
-  alert('Match nul')
-}
-}else {
-  this.partiFini();
-}
+        }    
+    } else {
+      this.alertPartiFini();
+    }
   }
-  caseVide(i,j){
-    if(this.state.squares[i][j] === ""){
+
+
+  caseVide(i, j) {
+    if (this.state.squares[i][j] === "") {
       return true;
     }
   }
-  tableauPlein(){
-    for(let i=0;i<this.state.nbLigne;i++){
-      for(let j=0;i<this.state.nbColonne;j++){
-        this.caseVide(i,j);
+ 
+  tableauPlein() {
+    for (let i = 0; i < this.state.nbLigne; i++) {
+      for (let j = 0; j < this.state.nbColonne; j++) {
+        if (this.caseVide(i, j)) {
+          return false;
+        }
       }
     }
     return true;
   }
-  clonerTableau(){
+
+
+  clonerTableau() {
     const squares = this.state.squares.slice();
     this.setState({
-      cloneSquare:squares
+      cloneSquare: squares
     });
   }
 
-  handleBoutonRejouer(){
+  handleBoutonRejouer() {
     this.resetTableauEtSatus();
   }
-  handleBoutonPrecedent(){
+  handleBoutonPrecedent() {
     const clone = this.state.cloneSquare.slice();
     this.setState({
-      squares:clone
+      squares: clone
     });
     console.log(clone);
     console.log(this.state.squares);
@@ -184,111 +211,112 @@ class Game extends React.Component {
 
   }
 
-  resetTableauEtSatus(){
+  resetTableauEtSatus() {
     this.setState({
-      squares: [["","",""],["","",""],["","",""]],
-      partiFini:false,
-      status:"",
-      xIsNext:true
+      squares: [["", "", ""], ["", "", ""], ["", "", ""]],
+      partiFini: false,
+      status: "",
+      xIsNext: true
     });
   }
+
+  updateStatusX() {
+    this.setState({
+      status: "Victoire du joueur X"
+    });
+  }
+
+  updateStatusO() {
+    this.setState({
+      status: "Victoire du joueur O"
+    });
+  }
+
+  updatePartiFini() {
     
-  updateStatusX(){
     this.setState({
-      status : "Victoire du joueur X"
+      partiFini: true
     });
   }
-    
-  updateStatusO(){
-    this.setState({
-      status : "Victoire du joueur O"
-    });
-  }
-    
-  updatePartiFini(){
-    const etat = !this.state.partiFini;
-    this.setState({
-      partiFini : etat
-    });
-  }
-  checkPartiFini(){
+  checkPartiFini() {
     const etat = this.state.partiFini;
     return etat;
   }
-  alertPartiFini(){
+  alertPartiFini() {
     alert('Partie Fini');
   }
-  
-   conditionDeVictoire(symbol) {
-      
-      return (this.victoireColonne(symbol) || 
-        this.victoireLigne(symbol) 		|| 
-        this.victoireDiago1(symbol) 		|| 
-        this.victoireDiago2(symbol))
+
+  conditionDeVictoire(symbol) {
+
+    return (this.victoireColonne(symbol) ||
+      this.victoireLigne(symbol) ||
+      this.victoireDiago1(symbol) ||
+      this.victoireDiago2(symbol))
   }
-  
-   rechercheGagnant(symbol) {
-      if (this.conditionDeVictoire(symbol)) {
-          return symbol;
-  
-      }
-      return false;
+
+  rechercheGagnant(symbol) {
+    if (this.conditionDeVictoire(symbol)) {
+      return symbol;
+
+    }
+    return false;
   }
-  updateScoreJoueurX(){
+  updateScoreJoueurX() {
     let scoreX = this.state.scoreJoueurX;
     this.setState({
       scoreJoueurX: scoreX + 1
-      
+
     });
   }
-  updateScoreJoueurO(){
+  updateScoreJoueurO() {
     let scoreO = this.state.scoreJoueurO;
     this.setState({
-      scoreJoueurO: scoreO +1 
+      scoreJoueurO: scoreO + 1
     });
   }
   render() {
     
+  
     return (
-      
+
       <div className="game">
         <div className="game-board">
-        <p>Tic Tac Bug</p>
-        <table border="1px"  >
-        <tr>
-          <td className="symbole" onClick={()=>this.handleClick(0, 0)}>
-            {this.state.squares[0][0]}
-          </td>
-          <td className="symbole" onClick={()=>this.handleClick( 0, 1)}>
-            {this.state.squares[0][1]}
-          </td>
-          <td className="symbole"  onClick={()=>this.handleClick(0, 2)}>
-            {this.state.squares[0][2]}
-          </td>
-        </tr>
-        <tr>
-          <td className="symbole" onClick={()=>this.handleClick(1, 0)}>
-            {this.state.squares[1][0]}
-          </td>
-          <td className="symbole" onClick={()=>this.handleClick( 1, 1)}>
-            {this.state.squares[1][1]}
-          </td>
-          <td className="symbole" onClick={()=>this.handleClick(1, 2)}>
-            {this.state.squares[1][2]}
-          </td>
-        </tr>
-        <tr>
-          <td className="symbole" onClick={()=>this.handleClick(2, 0)}>
-            {this.state.squares[2][0]}
-          </td>
-          <td className="symbole" onClick={()=>this.handleClick(2,1)}>
-            {this.state.squares[2][1]}
-          </td>
-          <td className="symbole" onClick={()=>this.handleClick(2, 2)}>
-            {this.state.squares[2][2]}
-          </td>
-        </tr>
-      </table>
+          <p>Tic Tac Bug</p>
+          <table border="1px"  >
+            <tr>
+              <td className="symbole" onClick={() => this.handleClick(0, 0)}>
+                {this.state.squares[0][0]}
+              </td>
+              <td className="symbole" onClick={() => this.handleClick(0, 1)}>
+                {this.state.squares[0][1]}
+              </td>
+              <td className="symbole" onClick={() => this.handleClick(0, 2)}>
+                {this.state.squares[0][2]}
+              </td>
+            </tr>
+            <tr>
+              <td className="symbole" onClick={() => this.handleClick(1, 0)}>
+                {this.state.squares[1][0]}
+              </td>
+              <td className="symbole" onClick={() => this.handleClick(1, 1)}>
+                {this.state.squares[1][1]}
+              </td>
+              <td className="symbole" onClick={() => this.handleClick(1, 2)}>
+                {this.state.squares[1][2]}
+              </td>
+            </tr>
+            <tr>
+              <td className="symbole" onClick={() => this.handleClick(2, 0)}>
+                {this.state.squares[2][0]}
+              </td>
+              <td className="symbole" onClick={() => this.handleClick(2, 1)}>
+                {this.state.squares[2][1]}
+              </td>
+              <td className="symbole" onClick={() => this.handleClick(2, 2)}>
+                {this.state.squares[2][2]}
+              </td>
+            </tr>
+          </table>
         </div>
         <div className="game-info">
           <div>
@@ -298,12 +326,12 @@ class Game extends React.Component {
           <div>
             <p>{this.state.status}</p>
           </div>
-         
+
         </div>
-        <GameBouton 
-        onClickRejouer = {()=>this.handleBoutonRejouer()}
-        onClickPrecedent = {()=>this.handleBoutonPrecedent()}
-        
+        <GameBouton
+          onClickRejouer={() => this.handleBoutonRejouer()}
+          onClickPrecedent={() => this.handleBoutonPrecedent()}
+
         />
       </div>
     );
@@ -311,29 +339,29 @@ class Game extends React.Component {
 }
 
 function GameBouton(props) {
-    return (
-      
-      
-        <div className="game-bouton">
-          <BoutonRejouer onClickRejouer={props.onClickRejouer}/>
-          <BoutonActionPrecedente onClickPrecedent={props.onClickPrecedent}/>
-         
-        </div>    
-    ); 
-  }
+  return (
 
 
-function BoutonRejouer(props){
-  return(
-  <button type="button" onClick = {props.onClickRejouer}>
-    Rejouer
+    <div className="game-bouton">
+      <BoutonRejouer onClickRejouer={props.onClickRejouer} />
+      <BoutonActionPrecedente onClickPrecedent={props.onClickPrecedent} />
+
+    </div>
+  );
+}
+
+
+function BoutonRejouer(props) {
+  return (
+    <button type="button" onClick={props.onClickRejouer}>
+      Rejouer
     </button>
   );
 }
-function BoutonActionPrecedente(props){
-  return(
-  <button type="button" onClick = {props.onClickPrecedent}>
-    Action précedente
+function BoutonActionPrecedente(props) {
+  return (
+    <button type="button" onClick={props.onClickPrecedent}>
+      Action précedente
     </button>
   );
 }
@@ -341,7 +369,7 @@ function BoutonActionPrecedente(props){
 // ========================================
 
 ReactDOM.render(
-  <Game />, 
+  <Game />,
   document.getElementById('root')
 );
 
