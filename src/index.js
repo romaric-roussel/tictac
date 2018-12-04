@@ -9,7 +9,8 @@ class Game extends React.Component {
     super(props);
    
     this.state = {
-      squares: [[],[],[]],
+      squares: [["","",""],["","",""],["","",""]],
+      cloneSquare:[["","",""],["","",""],["","",""]],
       xIsNext: true,
       nbLigne: 3,
       nbColonne:3,
@@ -17,7 +18,8 @@ class Game extends React.Component {
       scoreJoueurX:0,
       scoreJoueurO:0,
       partiFini:false,
-      status:""
+      status:"",
+      move:0
 
     
     };
@@ -104,18 +106,28 @@ class Game extends React.Component {
 
     
     if(!this.checkPartiFini()){
-      let status = this.state.status;
+      if(!this.caseVide(i,j)){
+        alert("Case Pleine");
+      }else if (!this.tableauPlein()){
+
+        let status = this.state.status;
       const squares = this.state.squares.slice();
       squares[i][j] = this.state.xIsNext ? 'X' : 'O';
       let symbole = !this.state.xIsNext ? 'X' : 'O';
+      //let move = this.state.move + 1;
+      
       status = "Tour du joueur : " + symbole;
+      
       this.setState({
         squares: squares,
         xIsNext: !this.state.xIsNext,
         currentSymbole:squares[i][j],
-        status:status
+        status:status,
+        
       });
-      let winner = this.rechercheGagnant(squares[i][j]);
+      this.clonerTableau();
+      
+      let winner = this.rechercheGagnant(this.state.squares[i][j]);
  
        if(winner === 'X'){
           this.updateScoreJoueurX();
@@ -130,23 +142,54 @@ class Game extends React.Component {
           this.updatePartiFini();
           this.updateStatusO();
           }
-       
-            
-      } else {
-        this.alertPartiFini();
-      }
-      
-
+ 
+} else {
+  alert('Match nul')
+}
+}else {
+  this.partiFini();
+}
   }
+  caseVide(i,j){
+    if(this.state.squares[i][j] === ""){
+      return true;
+    }
+  }
+  tableauPlein(){
+    for(let i=0;i<this.state.nbLigne;i++){
+      for(let j=0;i<this.state.nbColonne;j++){
+        this.caseVide(i,j);
+      }
+    }
+    return true;
+  }
+  clonerTableau(){
+    const squares = this.state.squares.slice();
+    this.setState({
+      cloneSquare:squares
+    });
+  }
+
   handleBoutonRejouer(){
     this.resetTableauEtSatus();
+  }
+  handleBoutonPrecedent(){
+    const clone = this.state.cloneSquare.slice();
+    this.setState({
+      squares:clone
+    });
+    console.log(clone);
+    console.log(this.state.squares);
+
+
   }
 
   resetTableauEtSatus(){
     this.setState({
-      squares: [[],[],[]],
+      squares: [["","",""],["","",""],["","",""]],
       partiFini:false,
-      status:""
+      status:"",
+      xIsNext:true
     });
   }
     
@@ -205,10 +248,7 @@ class Game extends React.Component {
     });
   }
   render() {
-    const history = this.state.squares;
-   // const current = history[history.length - 1];
-    //const winner = calculateWinner(current.squares);
-  
+    
     return (
       
       <div className="game">
@@ -260,7 +300,11 @@ class Game extends React.Component {
           </div>
          
         </div>
-        <GameBouton onClick = {()=>this.handleBoutonRejouer()}/>
+        <GameBouton 
+        onClickRejouer = {()=>this.handleBoutonRejouer()}
+        onClickPrecedent = {()=>this.handleBoutonPrecedent()}
+        
+        />
       </div>
     );
   }
@@ -271,7 +315,8 @@ function GameBouton(props) {
       
       
         <div className="game-bouton">
-          <BoutonRejouer onClick={props.onClick}/>
+          <BoutonRejouer onClickRejouer={props.onClickRejouer}/>
+          <BoutonActionPrecedente onClickPrecedent={props.onClickPrecedent}/>
          
         </div>    
     ); 
@@ -280,8 +325,15 @@ function GameBouton(props) {
 
 function BoutonRejouer(props){
   return(
-  <button type="button" onClick = {props.onClick}>
+  <button type="button" onClick = {props.onClickRejouer}>
     Rejouer
+    </button>
+  );
+}
+function BoutonActionPrecedente(props){
+  return(
+  <button type="button" onClick = {props.onClickPrecedent}>
+    Action précedente
     </button>
   );
 }
