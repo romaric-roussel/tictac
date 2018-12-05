@@ -11,17 +11,19 @@ class Game extends React.Component {
     let nbLigneEtColonne = prompt("Nombre de ligne et colonne");
     let playerX = prompt("Nom joueur X");
     let playerO = prompt("Nom joueur O");
+    let celluleRestante = parseInt(nbLigneEtColonne) * parseInt(nbLigneEtColonne);
     
     
 
     this.state = {
-      squares: [["", "", ""], ["", "", ""], ["", "", ""]],
-      currentSquare: [["", "", ""], ["", "", ""], ["", "", ""]],
+      tableaux: this.createTableau(nbLigneEtColonne),
+      currentTableau: this.createTableau(nbLigneEtColonne),
       lastIndexI:"",
       lastIndexJ:"",
       xIsNext: true,
       nbLigne: parseInt(nbLigneEtColonne),
       nbColonne: parseInt(nbLigneEtColonne),
+      nbLigneEtColonne:parseInt(nbLigneEtColonne),
       currentSymbole: "",
       scoreJoueurX: 0,
       scoreJoueurO: 0,
@@ -29,7 +31,7 @@ class Game extends React.Component {
       playerO: playerO,
       partiFini: false,
       matchNul:false,
-      celluleRestante:9,
+      celluleRestante: celluleRestante,
       status: "",
       move: 0,
       winner:""
@@ -37,9 +39,20 @@ class Game extends React.Component {
 
     };
   }
+ createTableau(nbLigneEtColonne){
+   let tab = [];
+   for(let i=0;i<nbLigneEtColonne;i++){
+     tab[i] = [];
+     for(let j=0;j<nbLigneEtColonne;j++){
+      tab[i][j] = "";
+    }
+   }
+   return tab;
+ }
+
   victoireLigne(symbol) {
 
-    const board = this.state.squares;
+    const board = this.state.tableaux;
     for (let i = 0; i < this.state.nbLigne; i++) {
       let trouve = 0;
       for (let j = 0; j < this.state.nbColonne; j++) {
@@ -59,7 +72,7 @@ class Game extends React.Component {
 
   victoireColonne(symbol) {
 
-    const board = this.state.squares;
+    const board = this.state.tableaux;
     for (let i = 0; i < this.state.nbColonne; i++) {
       let trouve = 0;
       for (let j = 0; j < this.state.nbLigne; j++) {
@@ -79,7 +92,7 @@ class Game extends React.Component {
 
   victoireDiago1(symbol) {
 
-    const board = this.state.squares;
+    const board = this.state.tableaux;
     if (this.state.nbLigne === this.state.nbColonne) {
       let trouve = 0;
       for (let i = 0; i < this.state.nbLigne; i++) {
@@ -97,7 +110,7 @@ class Game extends React.Component {
 
   victoireDiago2(symbol) {
 
-    const board = this.state.squares;
+    const board = this.state.tableaux;
     if (this.state.nbLigne === this.state.nbColonne) {
       let j = this.state.nbColonne - 1;
       let trouve = 0;
@@ -126,9 +139,9 @@ class Game extends React.Component {
       if (this.state.celluleRestante !== 0){
        
         let status = this.state.status;
-        const squares = this.state.squares.slice();
+        const tableaux = this.state.tableaux.slice();
         
-        squares[i][j] = this.state.xIsNext ? 'X' : 'O';
+        tableaux[i][j] = this.state.xIsNext ? 'X' : 'O';
         let symbole = !this.state.xIsNext ? 'X' : 'O';
         if(symbole === "X"){
           status = "Tour du joueur : " + this.state.playerX;
@@ -139,12 +152,12 @@ class Game extends React.Component {
 
         
         this.setState({
-          squares: squares,
+          tableaux: tableaux,
           xIsNext: !this.state.xIsNext,
-          currentSymbole: squares[i][j],
+          currentSymbole: tableaux[i][j],
           status: status,
           celluleRestante : this.state.celluleRestante -1,
-          currentSquare:squares,
+          currentTableau:tableaux,
           lastIndexI: i,
           lastIndexJ:j
           
@@ -154,16 +167,16 @@ class Game extends React.Component {
       if (this.state.celluleRestante === 1){
        
         let status = this.state.status;
-        const squares = this.state.squares.slice();
-        squares[i][j] = this.state.xIsNext ? 'X' : 'O';
+        const tableaux = this.state.tableaux.slice();
+        tableaux[i][j] = this.state.xIsNext ? 'X' : 'O';
       
         //let move = this.state.move + 1;
 
         status = "Match nul"
         this.setState({
-          squares: squares,
+          tableaux: tableaux,
           xIsNext: !this.state.xIsNext,
-          currentSymbole: squares[i][j],
+          currentSymbole: tableaux[i][j],
           status: status,
           celluleRestante : this.state.celluleRestante -1
 
@@ -174,9 +187,9 @@ class Game extends React.Component {
         
         //this.clonerTableau();
 
-        let winner = this.rechercheGagnant(this.state.squares[i][j]);
+        let winner = this.rechercheGagnant(this.state.tableaux[i][j]);
         console.log(winner);
-        console.log(this.state.squares[i][j]);
+        console.log(this.state.tableaux[i][j]);
         if (winner === 'X') {
           this.updateScoreJoueurX();
           this.updatePartiFini();
@@ -205,7 +218,7 @@ class Game extends React.Component {
 
 
   caseVide(i, j) {
-    if (this.state.squares[i][j] === "") {
+    if (this.state.tableaux[i][j] === "") {
       return true;
     }
   }
@@ -224,15 +237,17 @@ class Game extends React.Component {
 
 
   handleBoutonRejouer() {
+    let tableaux = this.createTableau(this.state.nbLigneEtColonne);
     this.resetTableauEtSatus();
     this.setState({
       celluleRestante :9,
-      winner:""
+      winner:"",
+      tableaux:tableaux
     });
   }
   handleBoutonPrecedent() {
-    const currentSquare = this.state.currentSquare.slice();
-    currentSquare[this.state.lastIndexI][this.state.lastIndexJ] = "";
+    const currentTableau = this.state.currentTableau.slice();
+    currentTableau[this.state.lastIndexI][this.state.lastIndexJ] = "";
     let symbole = !this.state.xIsNext ? 'X' : 'O';
     let status = "";
     if(symbole === "X"){
@@ -261,7 +276,7 @@ class Game extends React.Component {
       
     }
     this.setState({
-      currentSquare: currentSquare,
+      currentTableau: currentTableau,
       xIsNext: !this.state.xIsNext,
       celluleRestante:this.state.celluleRestante +1,
       status:status   
@@ -273,7 +288,6 @@ class Game extends React.Component {
 
   resetTableauEtSatus() {
     this.setState({
-      squares: [["", "", ""], ["", "", ""], ["", "", ""]],
       partiFini: false,
       status: "",
       xIsNext: true
@@ -345,35 +359,35 @@ class Game extends React.Component {
           <table border="1px"  >
             <tr>
               <td className="symbole" onClick={() => this.handleClick(0, 0)}>
-                {this.state.squares[0][0]}
+                {this.state.tableaux[0][0]}
               </td>
               <td className="symbole" onClick={() => this.handleClick(0, 1)}>
-                {this.state.squares[0][1]}
+                {this.state.tableaux[0][1]}
               </td>
               <td className="symbole" onClick={() => this.handleClick(0, 2)}>
-                {this.state.squares[0][2]}
+                {this.state.tableaux[0][2]}
               </td>
             </tr>
             <tr>
               <td className="symbole" onClick={() => this.handleClick(1, 0)}>
-                {this.state.squares[1][0]}
+                {this.state.tableaux[1][0]}
               </td>
               <td className="symbole" onClick={() => this.handleClick(1, 1)}>
-                {this.state.squares[1][1]}
+                {this.state.tableaux[1][1]}
               </td>
               <td className="symbole" onClick={() => this.handleClick(1, 2)}>
-                {this.state.squares[1][2]}
+                {this.state.tableaux[1][2]}
               </td>
             </tr>
             <tr>
               <td className="symbole" onClick={() => this.handleClick(2, 0)}>
-                {this.state.squares[2][0]}
+                {this.state.tableaux[2][0]}
               </td>
               <td className="symbole" onClick={() => this.handleClick(2, 1)}>
-                {this.state.squares[2][1]}
+                {this.state.tableaux[2][1]}
               </td>
               <td className="symbole" onClick={() => this.handleClick(2, 2)}>
-                {this.state.squares[2][2]}
+                {this.state.tableaux[2][2]}
               </td>
             </tr>
           </table>
