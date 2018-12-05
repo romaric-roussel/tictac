@@ -18,3 +18,18 @@ td{
 .symbole {
   font-size: 90px;
 }
+
+p{
+  text-align: center;
+}
+
+.game-bouton{
+  text-align: center;
+}
+button{
+  margin-left: 10px;
+  margin-right: 10px;
+  width: 300px;
+  height: 20px;
+}
+

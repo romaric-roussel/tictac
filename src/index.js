@@ -27,14 +27,16 @@ class Game extends React.Component {
       currentSymbole: "",
       scoreJoueurX: 0,
       scoreJoueurO: 0,
+      nbClickUndo:false,
       playerX: playerX,
       playerO: playerO,
       partiFini: false,
       matchNul: false,
       celluleRestante: celluleRestante,
-      status: "",
+      status: "Tour du joueur " + playerX,
       move: 0,
-      winner: ""
+      winner: "",
+    
 
 
     };
@@ -50,6 +52,7 @@ class Game extends React.Component {
       }
     }
     return tab;
+
   }
 
   victoireLigne(symbol) {
@@ -159,7 +162,8 @@ class Game extends React.Component {
           celluleRestante: this.state.celluleRestante - 1,
           currentTableau: tableaux,
           lastIndexI: i,
-          lastIndexJ: j
+          lastIndexJ: j,
+          nbClickUndo:false
  
  
         });
@@ -215,7 +219,8 @@ class Game extends React.Component {
             xIsNext: !this.state.xIsNext,
             currentSymbole: tableaux[i][j],
             status: status,
-            celluleRestante: this.state.celluleRestante - 1
+            celluleRestante: this.state.celluleRestante - 1,
+            nbClickUndo:false
 
           });
           this.updatePartiFini();
@@ -257,44 +262,49 @@ class Game extends React.Component {
     });
   }
   handleBoutonPrecedent() {
+    
     if(this.state.celluleRestante <9){
-      const currentTableau = this.state.currentTableau.slice();
-    currentTableau[this.state.lastIndexI][this.state.lastIndexJ] = "";
-    let symbole = !this.state.xIsNext ? 'X' : 'O';
-    let status = "";
-    if (symbole === "X") {
-      status = "Tour du joueur : " + this.state.playerX;
-    }
-    if (symbole === "O") {
-      status = "Tour du joueur : " + this.state.playerO;
-    }
-    let partiFini = this.state.partiFini;
-    let winner = this.state.winner
-    if (partiFini) {
-      if (winner === "X") {
-        this.setState({
-          scoreJoueurX: this.state.scoreJoueurX - 1
-        });
+      if(this.state.nbClickUndo){
+        return;
+      }else{
+             const currentTableau = this.state.currentTableau.slice();
+            currentTableau[this.state.lastIndexI][this.state.lastIndexJ] = "";
+            let symbole = !this.state.xIsNext ? 'X' : 'O';
+            let status = "";
+            if (symbole === "X") {
+              status = "Tour du joueur : " + this.state.playerX;
+            }
+            if (symbole === "O") {
+              status = "Tour du joueur : " + this.state.playerO;
+            }
+            let partiFini = this.state.partiFini;
+            let winner = this.state.winner
+            if (partiFini) {
+              if (winner === "X") {
+                this.setState({
+                  scoreJoueurX: this.state.scoreJoueurX - 1
+                });
+              }
+              if (winner === "O") {
+                this.setState({
+                  scoreJoueurO: this.state.scoreJoueurO - 1
+                });
+              }
+              this.setState({
+                partiFini: false
+              });
+
+
+            }
+            this.setState({
+              currentTableau: currentTableau,
+              xIsNext: !this.state.xIsNext,
+              celluleRestante: this.state.celluleRestante + 1,
+              status: status,
+              nbClickUndo:true
+            });
       }
-      if (winner === "O") {
-        this.setState({
-          scoreJoueurO: this.state.scoreJoueurO - 1
-        });
-      }
-      this.setState({
-        partiFini: false
-      });
-
-
     }
-    this.setState({
-      currentTableau: currentTableau,
-      xIsNext: !this.state.xIsNext,
-      celluleRestante: this.state.celluleRestante + 1,
-      status: status
-    });
-
-  }
   }
 
   resetTableauEtSatus() {
@@ -367,7 +377,7 @@ class Game extends React.Component {
 
       <div className="game">
         <div className="game-board">
-          <p>Tic Tac Bug</p>
+          <p id = "titre">Tic Tac Bug</p>
           <table border="1px"  >
             <tr>
               <Td onClick={() => this.handleClick(0, 0)}
