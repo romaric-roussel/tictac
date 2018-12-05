@@ -7,22 +7,32 @@ import './index.css';
 class Game extends React.Component {
   constructor(props) {
     super(props);
+
+    let nbLigneEtColonne = prompt("Nombre de ligne et colonne");
+    let playerX = prompt("Nom joueur X");
+    let playerO = prompt("Nom joueur O");
+    
     
 
     this.state = {
       squares: [["", "", ""], ["", "", ""], ["", "", ""]],
-      cloneSquare: [["", "", ""], ["", "", ""], ["", "", ""]],
+      currentSquare: [["", "", ""], ["", "", ""], ["", "", ""]],
+      lastIndexI:"",
+      lastIndexJ:"",
       xIsNext: true,
-      nbLigne: 3,
-      nbColonne: 3,
+      nbLigne: parseInt(nbLigneEtColonne),
+      nbColonne: parseInt(nbLigneEtColonne),
       currentSymbole: "",
       scoreJoueurX: 0,
       scoreJoueurO: 0,
+      playerX: playerX,
+      playerO: playerO,
       partiFini: false,
       matchNul:false,
       celluleRestante:9,
       status: "",
-      move: 0
+      move: 0,
+      winner:""
 
 
     };
@@ -107,7 +117,7 @@ class Game extends React.Component {
   }
   handleClick(i, j) {
 
-    console.log('toto')
+    
     if (this.state.partiFini===false) {
       if (!this.caseVide(i, j) && this.state.celluleRestante !== 0 ) {
         alert("Case Pleine");
@@ -117,11 +127,39 @@ class Game extends React.Component {
        
         let status = this.state.status;
         const squares = this.state.squares.slice();
+        
         squares[i][j] = this.state.xIsNext ? 'X' : 'O';
         let symbole = !this.state.xIsNext ? 'X' : 'O';
+        if(symbole === "X"){
+          status = "Tour du joueur : " + this.state.playerX;
+        }
+        if(symbole === "O"){
+          status = "Tour du joueur : " + this.state.playerO;
+        }
+
+        
+        this.setState({
+          squares: squares,
+          xIsNext: !this.state.xIsNext,
+          currentSymbole: squares[i][j],
+          status: status,
+          celluleRestante : this.state.celluleRestante -1,
+          currentSquare:squares,
+          lastIndexI: i,
+          lastIndexJ:j
+          
+
+        });
+      }
+      if (this.state.celluleRestante === 1){
+       
+        let status = this.state.status;
+        const squares = this.state.squares.slice();
+        squares[i][j] = this.state.xIsNext ? 'X' : 'O';
+      
         //let move = this.state.move + 1;
 
-        status = "Tour du joueur : " + symbole;
+        status = "Match nul"
         this.setState({
           squares: squares,
           xIsNext: !this.state.xIsNext,
@@ -130,42 +168,36 @@ class Game extends React.Component {
           celluleRestante : this.state.celluleRestante -1
 
         });
-        
-      }else if (this.state.celluleRestante ===1){
-
-        const squares = this.state.squares.slice();
-        squares[i][j] = this.state.xIsNext ? 'X' : 'O';
-        let status = "Match nul";
-         
-         this.setState({
-          squares: squares,
-          xIsNext: !this.state.xIsNext,
-          status: status,
-          partiFini:true,
-          celluleRestante : this.state.celluleRestante -1
-          
-
-        });
-        
+        this.updatePartiFini();
+        return;
       }
         
         //this.clonerTableau();
 
         let winner = this.rechercheGagnant(this.state.squares[i][j]);
-
+        console.log(winner);
+        console.log(this.state.squares[i][j]);
         if (winner === 'X') {
           this.updateScoreJoueurX();
-          setTimeout(() => alert('Victoire X', 1000));
           this.updatePartiFini();
           this.updateStatusX();
+          this.setState({
+            winner:winner
+          });
+          console.log("X");
         }
 
         if (winner === 'O') {
           this.updateScoreJoueurO();
-          setTimeout(() => alert('Victoire O', 1000));
           this.updatePartiFini();
           this.updateStatusO();
-        }    
+          this.setState({
+            winner:winner
+          });
+          console.log("X");
+        
+        } 
+        
     } else {
       this.alertPartiFini();
     }
@@ -190,23 +222,51 @@ class Game extends React.Component {
   }
 
 
-  clonerTableau() {
-    const squares = this.state.squares.slice();
-    this.setState({
-      cloneSquare: squares
-    });
-  }
 
   handleBoutonRejouer() {
     this.resetTableauEtSatus();
+    this.setState({
+      celluleRestante :9,
+      winner:""
+    });
   }
   handleBoutonPrecedent() {
-    const clone = this.state.cloneSquare.slice();
+    const currentSquare = this.state.currentSquare.slice();
+    currentSquare[this.state.lastIndexI][this.state.lastIndexJ] = "";
+    let symbole = !this.state.xIsNext ? 'X' : 'O';
+    let status = "";
+    if(symbole === "X"){
+      status = "Tour du joueur : " + this.state.playerX;
+    }
+    if(symbole === "O"){
+      status = "Tour du joueur : " + this.state.playerO;
+    }
+    let partiFini = this.state.partiFini;
+    let winner = this.state.winner
+    if(partiFini){
+      if(winner==="X"){
+        this.setState({
+          scoreJoueurX:this.state.scoreJoueurX-1
+        });
+      }
+      if(winner==="O"){
+        this.setState({
+          scoreJoueurO:this.state.scoreJoueurO-1
+        });
+      }
+      this.setState({
+        partiFini:false
+      });
+
+      
+    }
     this.setState({
-      squares: clone
+      currentSquare: currentSquare,
+      xIsNext: !this.state.xIsNext,
+      celluleRestante:this.state.celluleRestante +1,
+      status:status   
     });
-    console.log(clone);
-    console.log(this.state.squares);
+    
 
 
   }
@@ -222,13 +282,13 @@ class Game extends React.Component {
 
   updateStatusX() {
     this.setState({
-      status: "Victoire du joueur X"
+      status: "Victoire du joueur " + this.state.playerX
     });
   }
 
   updateStatusO() {
     this.setState({
-      status: "Victoire du joueur O"
+      status: "Victoire du joueur " + this.state.playerO
     });
   }
 
@@ -320,8 +380,8 @@ class Game extends React.Component {
         </div>
         <div className="game-info">
           <div>
-            <p>Score joueur X : {this.state.scoreJoueurX}</p>
-            <p>Score joueur O : {this.state.scoreJoueurO}</p>
+            <p>Score {this.state.playerX} : {this.state.scoreJoueurX}</p>
+            <p>Score {this.state.playerO} : {this.state.scoreJoueurO}</p>
           </div>
           <div>
             <p>{this.state.status}</p>
