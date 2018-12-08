@@ -6,9 +6,10 @@ import './index.css';
 
 class Game extends React.Component {
   constructor(props) {
-    super(props);
-
-    let nbLigneEtColonne = prompt("Nombre de ligne et colonne");
+    super(props); 
+    
+    alert("Nombre de ligne et colonne : 3");
+    let nbLigneEtColonne = 3 ;
     let playerX = prompt("Nom joueur X");
     let playerO = prompt("Nom joueur O");
     let celluleRestante = parseInt(nbLigneEtColonne) * parseInt(nbLigneEtColonne);
@@ -238,19 +239,6 @@ class Game extends React.Component {
       return true;
     }
   }
-
-  tableauPlein() {
-    for (let i = 0; i < this.state.nbLigne; i++) {
-      for (let j = 0; j < this.state.nbColonne; j++) {
-        if (this.caseVide(i, j)) {
-          return false;
-        }
-      }
-    }
-    return true;
-  }
-
-
 
   handleBoutonRejouer() {
     let tableaux = this.createTableau(this.state.nbLigneEtColonne);
